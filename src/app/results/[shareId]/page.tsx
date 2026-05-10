@@ -40,6 +40,17 @@ const TOOL_NAMES: Record<string, string> = {
   windsurf: "Windsurf",
 };
 
+const TOOL_EMOJI: Record<string, string> = {
+  cursor: "🖱️",
+  github_copilot: "🐙",
+  claude: "🤖",
+  chatgpt: "💬",
+  anthropic_api: "⚡",
+  openai_api: "🔮",
+  gemini: "♊",
+  windsurf: "🏄",
+};
+
 export default function ResultsPage() {
   const params = useParams();
   const router = useRouter();
@@ -62,7 +73,6 @@ export default function ResultsPage() {
         .select("*")
         .eq("share_id", shareId)
         .single();
-
       if (error || !data) {
         setLoading(false);
         return;
@@ -89,7 +99,7 @@ export default function ResultsPage() {
         }),
       });
       setLeadSubmitted(true);
-    } catch (e) {
+    } catch {
       alert("Something went wrong. Please try again.");
     } finally {
       setSubmittingLead(false);
@@ -105,19 +115,44 @@ export default function ResultsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl animate-pulse">Loading your audit...</div>
+        <div className="text-center">
+          <svg
+            className="animate-spin h-8 w-8 text-emerald-400 mx-auto mb-3"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8z"
+            />
+          </svg>
+          <p className="text-slate-400 text-sm">Loading your audit...</p>
+        </div>
       </div>
     );
   }
 
   if (!audit) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="text-white text-xl mb-4">Audit not found</div>
+          <div className="text-4xl mb-3">🔍</div>
+          <div className="text-white text-lg mb-2">Audit not found</div>
+          <p className="text-slate-400 text-sm mb-4">
+            This link may have expired or is invalid.
+          </p>
           <button
             onClick={() => router.push("/")}
-            className="bg-emerald-500 text-white px-6 py-2 rounded-lg"
+            className="bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium"
           >
             Run a new audit
           </button>
@@ -129,25 +164,31 @@ export default function ResultsPage() {
   const isHighSavings = audit.total_monthly_savings > 500;
   const isOptimal = audit.total_monthly_savings < 100;
   const hasResults = audit.audit_results && audit.audit_results.length > 0;
+  const maxSpend = hasResults
+    ? Math.max(...audit.audit_results.map((r) => r.currentSpend))
+    : 1;
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Header */}
-      <div className="border-b border-slate-700 bg-slate-900/50 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button onClick={() => router.push("/")} className="text-emerald-400 font-bold text-xl">
+      <div className="border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={() => router.push("/")}
+            className="text-emerald-400 font-bold text-lg"
+          >
             ⚡ SpendLens
           </button>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button
               onClick={copyLink}
-              className="bg-slate-700 hover:bg-slate-600 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+              className="bg-slate-700/80 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded-lg transition-colors"
             >
-              {copied ? "✓ Copied!" : "Share report"}
+              {copied ? "✓ Copied!" : "Share"}
             </button>
             <button
               onClick={() => router.push("/")}
-              className="bg-emerald-500 hover:bg-emerald-400 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+              className="bg-emerald-500 hover:bg-emerald-400 text-white text-xs px-3 py-1.5 rounded-lg transition-colors font-medium"
             >
               New audit
             </button>
@@ -155,37 +196,41 @@ export default function ResultsPage() {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-12">
-        {/* Hero savings block */}
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-12">
+        {/* Hero savings */}
         <div
-          className={`rounded-2xl p-8 mb-8 text-center border ${
+          className={`rounded-2xl p-6 mb-5 text-center border ${
             isOptimal
-              ? "bg-emerald-900/30 border-emerald-700"
-              : "bg-gradient-to-br from-emerald-900/50 to-slate-800 border-emerald-600"
+              ? "bg-emerald-900/20 border-emerald-700/50"
+              : "bg-gradient-to-br from-emerald-900/40 to-slate-800/80 border-emerald-600/40"
           }`}
         >
           {isOptimal ? (
             <>
-              <div className="text-5xl mb-3">✅</div>
-              <h1 className="text-3xl font-bold mb-2">You're spending well</h1>
-              <p className="text-slate-300 text-lg">
-                Your AI stack is optimized for your team size and use case.
+              <div className="text-4xl mb-2">✅</div>
+              <h1 className="text-2xl font-bold mb-1">You're spending well</h1>
+              <p className="text-slate-300 text-sm">
+                Your AI stack is optimized for your team.
               </p>
             </>
           ) : (
             <>
-              <div className="text-slate-400 text-sm uppercase tracking-wider mb-2">
-                Potential savings identified
+              <div className="text-slate-400 text-xs uppercase tracking-widest mb-2">
+                Potential savings found
               </div>
-              <div className="text-6xl font-bold text-emerald-400 mb-1">
+              <div className="text-5xl sm:text-6xl font-bold text-emerald-400 mb-1">
                 ${audit.total_monthly_savings.toFixed(0)}
-                <span className="text-2xl text-emerald-500">/mo</span>
+                <span className="text-xl text-emerald-500">/mo</span>
               </div>
-              <div className="text-slate-300 text-xl mb-2">
-                ${audit.total_annual_savings.toFixed(0)} per year
+              <div className="text-slate-300 text-lg font-semibold mb-1">
+                ${audit.total_annual_savings.toFixed(0)}
+                <span className="text-slate-400 font-normal text-sm">
+                  {" "}
+                  per year
+                </span>
               </div>
-              <p className="text-slate-400 text-sm">
-                For a team of {audit.team_size} · {audit.use_case} use case
+              <p className="text-slate-500 text-xs">
+                Team of {audit.team_size} · {audit.use_case} use case
               </p>
             </>
           )}
@@ -193,73 +238,86 @@ export default function ResultsPage() {
 
         {/* AI Summary */}
         {audit.summary && (
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-emerald-400">✦</span>
-              <span className="text-sm font-medium text-slate-400 uppercase tracking-wider">
-                AI-generated summary
+          <div className="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-5 mb-5">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-emerald-400 text-sm">✦</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                AI Summary
               </span>
             </div>
-            <p className="text-slate-200 leading-relaxed">{audit.summary}</p>
+            <p className="text-slate-200 text-sm leading-relaxed">
+              {audit.summary}
+            </p>
           </div>
         )}
 
         {/* Per-tool breakdown */}
         {hasResults && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Tool-by-tool breakdown</h2>
-            <div className="space-y-4">
+          <div className="mb-5">
+            <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">
+              Tool breakdown
+            </h2>
+            <div className="space-y-3">
               {audit.audit_results.map((result, i) => (
                 <div
                   key={i}
-                  className={`rounded-xl border p-5 ${
+                  className={`rounded-2xl border p-4 ${
                     result.savings > 0
-                      ? "border-orange-700/50 bg-orange-900/10"
-                      : "border-slate-700 bg-slate-800/50"
+                      ? "border-orange-700/40 bg-orange-900/10"
+                      : "border-slate-700/40 bg-slate-800/40"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <span className="font-semibold text-white">
-                        {TOOL_NAMES[result.tool] || result.tool}
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">
+                        {TOOL_EMOJI[result.tool] || "🔧"}
                       </span>
-                      <span className="text-slate-400 text-sm ml-2">
-                        {result.plan} plan
-                      </span>
+                      <div>
+                        <div className="font-semibold text-sm text-white">
+                          {TOOL_NAMES[result.tool] || result.tool}
+                        </div>
+                        <div className="text-slate-500 text-xs">
+                          {result.plan} plan
+                        </div>
+                      </div>
                     </div>
                     {result.savings > 0 ? (
-                      <span className="bg-orange-500/20 text-orange-400 text-sm font-medium px-3 py-1 rounded-full">
+                      <span className="bg-orange-500/20 text-orange-400 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap">
                         Save ${result.savings.toFixed(0)}/mo
                       </span>
                     ) : (
-                      <span className="bg-emerald-500/20 text-emerald-400 text-sm px-3 py-1 rounded-full">
+                      <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full">
                         ✓ Optimal
                       </span>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 mb-3 text-sm">
-                    <div>
-                      <div className="text-slate-500 text-xs mb-1">Current</div>
-                      <div className="text-white font-medium">
-                        ${result.currentSpend}/mo
-                      </div>
+                  {/* Spend bar */}
+                  <div className="mb-3">
+                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                      <span>Current: ${result.currentSpend}/mo</span>
+                      <span>
+                        Recommended: ${result.estimatedCost.toFixed(0)}/mo
+                      </span>
                     </div>
-                    <div>
-                      <div className="text-slate-500 text-xs mb-1">→ Recommended</div>
-                      <div className="text-emerald-400 font-medium">
-                        ${result.estimatedCost.toFixed(0)}/mo
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-slate-500 text-xs mb-1">Action</div>
-                      <div className="text-white font-medium text-xs">
-                        {result.recommendedAction}
-                      </div>
+                    <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${result.savings > 0 ? "bg-orange-500" : "bg-emerald-500"}`}
+                        style={{
+                          width: `${Math.min(100, (result.currentSpend / maxSpend) * 100)}%`,
+                        }}
+                      />
                     </div>
                   </div>
 
-                  <p className="text-slate-400 text-sm leading-relaxed">
+                  <div className="bg-slate-700/30 rounded-xl px-3 py-2 mb-2">
+                    <span className="text-slate-400 text-xs">Action: </span>
+                    <span className="text-white text-xs font-medium">
+                      {result.recommendedAction}
+                    </span>
+                  </div>
+
+                  <p className="text-slate-400 text-xs leading-relaxed">
                     {result.reason}
                   </p>
                 </div>
@@ -268,26 +326,25 @@ export default function ResultsPage() {
           </div>
         )}
 
-        {/* Credex CTA for high savings */}
+        {/* Credex CTA */}
         {isHighSavings && (
-          <div className="bg-gradient-to-r from-emerald-900/60 to-slate-800 border border-emerald-600 rounded-2xl p-6 mb-8">
-            <div className="flex items-start gap-4">
-              <div className="text-3xl">💰</div>
+          <div className="bg-gradient-to-r from-emerald-900/50 to-slate-800/80 border border-emerald-600/40 rounded-2xl p-5 mb-5">
+            <div className="flex gap-3">
+              <div className="text-2xl">💰</div>
               <div>
-                <h3 className="text-lg font-bold mb-1">
-                  You could save even more with Credex
+                <h3 className="font-bold text-sm mb-1">
+                  Save even more with Credex
                 </h3>
-                <p className="text-slate-300 text-sm mb-4">
+                <p className="text-slate-300 text-xs mb-3 leading-relaxed">
                   Credex sources discounted AI credits from companies that
-                  overforecast — Cursor, Claude, ChatGPT Enterprise and more, at
-                  real discounts. For teams saving $500+/mo, the additional
-                  savings through credits can be substantial.
+                  overforecast — Cursor, Claude, ChatGPT Enterprise at real
+                  discounts.
                 </p>
                 <a
                   href="https://credex.rocks"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-2 rounded-lg text-sm transition-colors inline-block"
+                  className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors inline-block"
                 >
                   Book a Credex consultation →
                 </a>
@@ -297,46 +354,45 @@ export default function ResultsPage() {
         )}
 
         {/* Lead capture */}
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8">
+        <div className="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-5 mb-5">
           {leadSubmitted ? (
-            <div className="text-center py-4">
-              <div className="text-4xl mb-3">📬</div>
-              <h3 className="text-lg font-bold mb-1">Report sent!</h3>
-              <p className="text-slate-400 text-sm">
-                Check your inbox for the full audit report.
+            <div className="text-center py-2">
+              <div className="text-3xl mb-2">📬</div>
+              <h3 className="font-bold text-sm mb-1">Report sent!</h3>
+              <p className="text-slate-400 text-xs">
+                Check your inbox.
                 {isHighSavings && " A Credex advisor will reach out shortly."}
               </p>
             </div>
           ) : showLeadForm ? (
             <div>
-              <h3 className="font-bold mb-4">
+              <h3 className="font-bold text-sm mb-3">
                 {isOptimal
-                  ? "Get notified when new optimizations apply to your stack"
+                  ? "Get notified on new optimizations"
                   : "Email me this report"}
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <input
                   type="email"
                   placeholder="your@email.com *"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-700/80 border border-slate-600/50 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500 transition-all"
                 />
                 <input
                   type="text"
-                  placeholder="Company name (optional)"
+                  placeholder="Company (optional)"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-700/80 border border-slate-600/50 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500 transition-all"
                 />
                 <input
                   type="text"
                   placeholder="Your role (optional)"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-700/80 border border-slate-600/50 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500 transition-all"
                 />
-                {/* Honeypot - hidden from real users */}
                 <input
                   type="text"
                   name="website"
@@ -347,29 +403,29 @@ export default function ResultsPage() {
                 <button
                   onClick={submitLead}
                   disabled={!email || submittingLead}
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-600 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors"
                 >
-                  {submittingLead ? "Sending..." : "Send me the report →"}
+                  {submittingLead ? "Sending..." : "Send report →"}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="font-semibold mb-1">
+                <h3 className="font-semibold text-sm mb-0.5">
                   {isOptimal
-                    ? "Stay updated on AI pricing changes"
-                    : "Get this report in your inbox"}
+                    ? "Stay updated on pricing changes"
+                    : "Get this report by email"}
                 </h3>
-                <p className="text-slate-400 text-sm">
+                <p className="text-slate-400 text-xs">
                   {isOptimal
-                    ? "We'll notify you when a better deal applies to your stack."
-                    : "Full breakdown + action steps sent to your email."}
+                    ? "We'll notify you when deals apply to your stack."
+                    : "Full breakdown + action steps."}
                 </p>
               </div>
               <button
                 onClick={() => setShowLeadForm(true)}
-                className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-2 rounded-lg text-sm transition-colors ml-4 whitespace-nowrap"
+                className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors whitespace-nowrap shrink-0"
               >
                 {isOptimal ? "Notify me" : "Email report"}
               </button>
@@ -379,14 +435,14 @@ export default function ResultsPage() {
 
         {/* Share */}
         <div className="text-center">
-          <p className="text-slate-400 text-sm mb-3">
+          <p className="text-slate-500 text-xs mb-2">
             Share this report with your team
           </p>
           <button
             onClick={copyLink}
-            className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg text-sm transition-colors"
+            className="bg-slate-700/80 hover:bg-slate-600 text-white px-5 py-2 rounded-xl text-sm transition-colors"
           >
-            {copied ? "✓ Link copied!" : "Copy shareable link"}
+            {copied ? "✓ Link copied!" : "📋 Copy shareable link"}
           </button>
         </div>
       </div>
