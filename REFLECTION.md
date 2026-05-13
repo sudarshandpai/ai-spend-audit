@@ -4,15 +4,8 @@
 
 ## Q1. The hardest bug you hit this week, and how you debugged it
 
-The hardest bug was the Supabase insert failing silently on Day 1. The form would submit, Claude would return an audit, the results page would load — but nothing was being written to the database. No error in the UI, no red in the console. The app just quietly swallowed it.
-
-My first hypothesis was that the Anthropic API response wasn't resolving before the insert ran — a timing issue. I added `await` more aggressively and logged the response shape before the insert. Still nothing in Supabase. The insert was definitely running, it just wasn't working.
-
-My second hypothesis was an RLS (Row Level Security) policy on the Supabase table blocking anonymous writes. I checked the dashboard — RLS was enabled but no policy had been created, which in Supabase means all writes are denied by default. I added an insert policy for anonymous users. Still nothing.
-
-The actual problem turned out to be simpler and more embarrassing: the shape of the object I was inserting didn't match the table schema. I had nullable columns defined as `NOT NULL` in the schema, and the object I was inserting had `undefined` on those fields rather than `null`. Postgres rejected the insert, Supabase returned a 400, but I wasn't checking the return value of the insert call — I was just calling it and moving on. The fix was two parts: update the schema to allow nulls on optional fields, and actually check the `{ error }` return from the Supabase client. After that it worked immediately.
-
-What I learned: always destructure and log `{ data, error }` from Supabase calls. A silent failure is always a failure you're not logging.
+The hardest bug was the Supabase insert failing silently on Day 1... [keep everything you wrote]
+A second non-obvious bug was the Resend client instantiation. The transactional email after lead capture was throwing a runtime error in production but not locally. Locally I was loading the API key via .env.local; on Vercel the key was set but I was instantiating the Resend client at the module level (const resend = new Resend(process.env.RESEND_API_KEY)) before the environment was fully hydrated in the serverless function context. Moving the instantiation inside the handler function resolved it. The fix was one line but finding it took 40 minutes of reading Vercel deployment logs.
 
 ---
 
@@ -60,7 +53,7 @@ The core logic is readable and typed correctly, but there are rough edges. The A
 The UI is clean, responsive, and works in both dark and light mode. The results page is designed to be screenshotted and shared, which was a deliberate choice. I lost a point because the loading state between form submission and results could be smoother — the transition is abrupt.
 
 **Problem-solving — 8/10**
-I debugged two non-obvious issues (the Supabase silent insert failure and the Resend client instantiation bug) without prior full-stack experience in Next.js. Both required forming multiple hypotheses and ruling them out systematically before finding the real cause. I'd give myself a full 9 if I'd caught the Supabase schema mismatch faster.
+I debugged two non-obvious issues (the Supabase silent insert failure and the Resend client instantiation bug, both described in Q1) without prior full-stack experience in Next.js. Both required forming multiple hypotheses and ruling them out systematically before finding the real cause. I'd give myself a full 9 if I'd caught the Supabase schema mismatch faster.
 
 **Entrepreneurial thinking — 7/10**
 I did three real user interviews, built the shareable link as a distribution mechanism, and designed the results page to be forwarded up the chain to decision-makers. The GTM plan is specific enough to be actionable. I'm docking myself 3 points because I didn't think about the freelancer segment until Interview 3 surfaced it — a sharper founder would have identified that segment earlier and built for it from the start.
