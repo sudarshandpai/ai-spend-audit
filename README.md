@@ -8,9 +8,13 @@ A free tool that audits your team's AI tool subscriptions and identifies cost sa
 
 ## Screenshots
 
-
+**Input Form**
 ![Input Form](./public/screenshot-form.png)
+
+**Audit Results**
 ![Audit Results](./public/screenshot-results.png)
+
+**Tools Tab**
 ![Tools Tab](./public/screenshot-tools.png)
 
 ---
