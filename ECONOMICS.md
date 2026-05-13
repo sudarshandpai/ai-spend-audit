@@ -1,74 +1,114 @@
 # ECONOMICS — SpendLensAI
 
-## Unit Economics
+---
 
-### Cost per audit (free tier)
+## What's a Converted Lead Worth to Credex?
 
-Each audit makes one call to the Anthropic API using `claude-sonnet-4`.
+Credex sells discounted AI infrastructure credits — Cursor, Claude, ChatGPT Enterprise — at a meaningful discount to retail. To estimate lead value:
 
-| Item | Estimate |
-|---|---|
-| Avg input tokens per audit | ~800 tokens (system prompt + tool data) |
-| Avg output tokens per audit | ~600 tokens (structured JSON response) |
-| claude-sonnet-4 input price | $3.00 / 1M tokens |
-| claude-sonnet-4 output price | $15.00 / 1M tokens |
-| **Cost per audit** | **(800 × $0.000003) + (600 × $0.000015) = $0.0024 + $0.009 = ~$0.011** |
+**Assumptions:**
 
-**Each audit costs approximately 1 cent.**
+- Average startup buying Credex credits spends $2,000/month on AI tools
+- Credex discount is ~20–30% off retail → customer saves $400–$600/month
+- Credex margin on credits: ~15% of deal value
+- Average contract: 6 months before churn or renewal
 
-Supabase (free tier) and Vercel (free tier) are $0 at current scale.
+**Lead value calculation:**
 
-### Break-even on Pro tier
+- Monthly deal value to Credex: $2,000 × 15% margin = $300/month
+- Average contract length: 6 months
+- **LTV per converted customer: $300 × 6 = $1,800**
 
-| Item | Value |
-|---|---|
-| Pro tier price | $49/month |
-| API cost at 1,000 audits/month | ~$11 |
-| Vercel Pro (if needed) | $20/month |
-| Supabase Pro (if needed) | $25/month |
-| **Break-even subscribers** | **~1 subscriber covers infra at 1,000 audits/month** |
-
-The business is extremely low-cost to operate at early scale.
+Conservative estimate: **$1,000–$2,000 LTV per converted Credex customer.**
 
 ---
 
-## Revenue Projections
+## CAC at Each GTM Channel
 
-### Conservative (Month 6)
-- 2,000 audits/month
-- 5% conversion to Pro
-- 100 Pro subscribers × $49 = **$4,900 MRR**
-- API costs: ~$22/month
-- Infra: ~$45/month
-- **Gross margin: ~99%**
+| Channel                                | Method             | Estimated CAC |
+| -------------------------------------- | ------------------ | ------------- |
+| Hacker News "Show HN"                  | Free post, 0 spend | ~$0           |
+| r/ExperiencedDevs / r/SideProject      | Free post, 0 spend | ~$0           |
+| LinkedIn (organic, EM-targeted post)   | 2 hours of writing | ~$0           |
+| Shareable results link (word of mouth) | Built into product | ~$0           |
+| Cold DM to CTOs on X                   | 3 hours outreach   | ~$0           |
 
-### Optimistic (Month 12)
-- 10,000 audits/month
-- 8% conversion to Pro
-- 800 Pro subscribers × $49 = **$39,200 MRR**
+**All channels in the GTM plan are $0 paid CAC.** The tool itself is the distribution — every shared audit URL is a referral loop.
 
----
+At scale (Month 3+), if Credex runs paid LinkedIn ads targeting "Engineering Manager" + "Series A":
 
-## Current Costs (Assignment / MVP Phase)
-
-| Item | Monthly Cost |
-|---|---|
-| Anthropic API (testing) | ~$0.50 |
-| Supabase | $0 (free tier) |
-| Vercel | $0 (free tier) |
-| Domain | $0 (using vercel.app subdomain) |
-| **Total** | **~$0.50/month** |
+- LinkedIn CPM: ~$80
+- CTR to tool: ~1%
+- Audit completion rate: ~60%
+- Lead capture rate: ~15%
+- Consultation booking rate: ~10%
+- Credit purchase rate: ~30%
+- **Paid CAC estimate: ~$1,800–$2,500** (still within LTV at $1,800, borderline — organic is the right channel at this stage)
 
 ---
 
-## Sensitivity Analysis
+## Conversion Funnel & Breakeven
 
-The main cost lever is Claude API usage. At scale:
+Cold visitor lands on page
+↓ 60% complete the audit
+Audit completed (1,000/month assumed)
+↓ 15% submit email
+Lead captured (150/month)
+↓ 10% book a Credex consultation
+Consultation booked (15/month)
+↓ 30% purchase credits
+Credit purchase (4–5/month)
+↓
+Revenue to Credex: 4.5 × $1,800 LTV = ~$8,100/month
 
-| Monthly Audits | API Cost | Margin at 100 Pro users |
-|---|---|---|
-| 1,000 | $11 | 97.7% |
-| 10,000 | $110 | 95.6% |
-| 100,000 | $1,100 | 56% |
+At 1,000 audits/month, the tool generates ~$8,100/month in Credex revenue.
 
-At 100,000+ audits/month, it would be worth negotiating an Anthropic volume discount or caching common audit patterns.
+Tool operating cost at this volume:
+
+- Anthropic API: ~$11/month
+- Vercel + Supabase: ~$0 (free tier)
+- **Net contribution: ~$8,089/month**
+
+The tool is profitable from the first converted customer. There is no meaningful cost floor to clear.
+
+---
+
+## What Would Have to Be True for $1M ARR in 18 Months?
+
+$1M ARR = $83,333/month in Credex revenue from this tool.
+
+Working backwards from the funnel:
+
+| Metric                           | Required                       |
+| -------------------------------- | ------------------------------ |
+| Credit purchases/month           | 83,333 ÷ 1,800 LTV = ~46/month |
+| Consultations booked (30% close) | 46 ÷ 0.30 = ~154/month         |
+| Leads captured (10% book)        | 154 ÷ 0.10 = ~1,540/month      |
+| Audits completed (15% capture)   | 1,540 ÷ 0.15 = ~10,267/month   |
+| Page visitors (60% complete)     | 10,267 ÷ 0.60 = ~17,100/month  |
+
+$1M ARR requires ~17,000 monthly visitors completing audits.
+
+What has to be true:
+
+1. **The tool goes viral at least once** — a single HN frontpage post drives 5,000–20,000 visitors in 48 hours
+2. **The shareable link mechanic works** — every audit shared by a non-budget-owner to their CTO is a warm referral
+3. **Credex's sales team closes 30% of consultations** — realistic for a warm inbound lead who already knows their savings number
+4. **Average deal size holds at $2,000/month** — requires targeting companies with real AI spend, not solo devs
+
+Reaching 17,000 monthly visitors by month 18 is achievable with 2–3 viral distribution moments (HN, a popular tweet, a newsletter mention) plus compounding word-of-mouth from the shareable URL mechanic.
+
+---
+
+## Unit Economics Summary
+
+| Metric                      | Value         |
+| --------------------------- | ------------- |
+| Cost per audit              | ~$0.011       |
+| LTV per Credex customer     | ~$1,800       |
+| Organic CAC                 | $0            |
+| Audits needed for $1M ARR   | ~10,000/month |
+| Visitors needed for $1M ARR | ~17,000/month |
+| Gross margin at scale       | >95%          |
+
+The economics are strong. The constraint is distribution, not cost structure.
