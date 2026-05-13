@@ -105,3 +105,17 @@ No auth needed. The UUID is unguessable, so sharing is opt-in and private by def
 
 **Honeypot anti-spam:**
 The lead capture form contains a hidden `_trap` field. Any submission with `_trap` populated is silently discarded server-side — no real CAPTCHA needed for this volume.
+
+## Why This Stack
+
+Next.js was chosen because it handles both the frontend and API routes in a single deployment — no separate backend server needed. The App Router gives SSR on the results page, which is essential for Open Graph previews to work correctly (crawlers need server-rendered HTML). Supabase was chosen over Firebase because it's Postgres — queryable with SQL, no vendor lock-in, and the free tier is generous enough for this project. Tailwind keeps styling fast without a component library overhead.
+
+## Scaling to 10k Audits/Day
+
+The current architecture would break at scale in two places:
+
+**1. Anthropic API latency:** Each audit makes a synchronous call to Claude. At 10k audits/day (~7/minute peak), this becomes a queue problem. Fix: move the Anthropic call to a background job (Inngest or a Supabase Edge Function), return the UUID immediately, and poll for results. The results page already fetches by UUID — this change is mostly backend.
+
+**2. Supabase connection limits:** The free tier caps at 60 concurrent connections. Fix: add a connection pooler (PgBouncer, which Supabase supports natively in paid tiers) and cache hot results in Redis or Vercel KV. Most shared audit URLs are read-heavy — caching the results JSON would cut DB load by ~80%.
+
+**3. Rate limiting:** The lead capture endpoint has no rate limiter beyond the honeypot. At scale, add Upstash Redis-based rate limiting per IP (10 req/min).
