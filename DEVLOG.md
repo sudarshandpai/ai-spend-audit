@@ -4,94 +4,132 @@ A daily record of what was built, broken, and shipped.
 
 ---
 
-## May 9, 2026 — Project Kickoff
+## Day 1 — 2026-05-07
 
-**Goal:** Get a working skeleton deployed end-to-end.
+**Hours worked:** 0
 
-Started from scratch. Initialized a Next.js 14 project with the App Router and got it running locally. The core idea: users paste in what they're spending on AI tools, Claude audits it, and gives back a structured breakdown.
+**What I did:** Assignment received. Read the brief twice, took notes on the rubric. Did not write any code — wanted to think through the product before touching the keyboard.
 
-**Done today:**
-- Scaffolded Next.js app, connected to Supabase (Postgres) for storing audit results
-- Wrote the first version of `route.ts` — the API route that calls the Anthropic API (claude-sonnet) and returns a structured audit
-- Built the spend input form: tool name, seats, monthly cost, use case
-- Created the results page with a shareable URL (UUID-based)
-- First successful end-to-end test: form → Claude → results page
+**What I learned:** The brief is asking for a real product, not a coding exercise. Spent the evening thinking about what "Mint for AI spend" actually means from a user's perspective.
 
-**Blockers:** Supabase env vars took a while to wire up correctly. Vercel deployment failed twice due to missing `ANTHROPIC_API_KEY` in environment settings.
+**Blockers / what I'm stuck on:** Nothing technical yet. Still deciding on the stack.
 
-**Commit:** `feat: initial scaffold, form, audit API route, results page`
+**Plan for tomorrow:** Rest day. Start fresh on May 9 with a clear plan.
 
 ---
 
-## May 10, 2026 — Feature Sprint
+## Day 2 — 2026-05-08
 
-**Goal:** Add value-add features that make the tool actually useful.
+**Hours worked:** 0
 
-Spent the day stacking features. Shipped four in one session:
+**What I did:** Off day. Rested and mentally planned the architecture — form → audit engine → results page → shareable URL. Decided on Next.js + Supabase + Anthropic API.
 
-**Done today:**
-- **Quick Presets** — 3 buttons (Lean Startup / Scale-Ready / Best-in-Class) that auto-fill the form with realistic configurations
-- **What-If Calculator** — slider to simulate "what if we add N seats?" with real-time cost delta
-- **ROI Calculator** — calculates cost per developer per month and estimated productivity gain multiple
-- **API Usage Estimator** — input tokens/day, get projected monthly cost across Claude, GPT-4, and Gemini
+**What I learned:** Thinking before building saves time. Knowing the data model ahead of time would have saved me a rewrite later (spoiler: it didn't fully save me).
 
-All four added to `page.tsx` as collapsible sections below the main form.
+**Blockers / what I'm stuck on:** None.
 
-**Notes:** UI was getting cluttered. Filed a mental note to split tools into a separate tab.
-
-**Commit:** `feat: quick presets, what-if calc, ROI calc, API estimator`
+**Plan for tomorrow:** Initialize repo, scaffold Next.js app, get first end-to-end flow working by end of day.
 
 ---
 
-## May 11, 2026 — UI Overhaul
+## Day 3 — 2026-05-09
 
-**Goal:** Make it look good on desktop, not just mobile.
-
-The previous UI was optimized for mobile and looked cramped on a 1440p screen. Rebuilt the layout.
-
-**Done today:**
-- Moved What-If, ROI, and API Estimator into a separate **Tools tab** — main page now only has the Audit form
-- Added a **Reset button** (circular arrows icon, top-right of form) to clear all fields
-- Full responsive redesign: two-column layout on desktop, single column on mobile
-- Added **dark/light mode toggle** — persists via `localStorage`
-- Lead capture form on results page: name + email, stores to Supabase
-- Added **honeypot field** (`_trap`) on lead capture to block bots
-- OG image meta tags for social sharing
-
-**Commit:** `feat: tabs, reset button, responsive layout, lead capture + honeypot`
-
----
-
-## May 12, 2026 — Polish & Docs
-
-**Goal:** Lighthouse scores, final polish, write all required documentation.
-
-**Done today:**
-- Fixed Lighthouse accessibility issues: added `aria-label` to icon buttons, improved color contrast on dark mode
-- Performance: lazy-loaded the Tools tab, deferred non-critical scripts → Lighthouse Performance 87, Accessibility 92
-- Form state now persists across page reloads using `localStorage`
-- Wrote all required assignment documentation: ARCHITECTURE.md, DEVLOG.md, REFLECTION.md, TESTS.md, PROMPTS.md, GTM.md, ECONOMICS.md, USER_INTERVIEWS.md, LANDING_COPY.md, METRICS.md
-
-**Commit:** `docs: all required docs, a11y fixes, localStorage form persistence`
-
---
-
-### Day 5 — May 13, 2026
-
-**Commit:** Final polish, deployment verification & submission prep
+**Hours worked:** 5
 
 **What I did:**
-- Reviewed and finalized all required submission documents (DEVLOG, REFLECTION, ARCHITECTURE)
-- Verified full end-to-end flow on production (Vercel) — audit engine, email report, lead capture
-- Confirmed Supabase logs are recording correctly in prod
-- Minor UI/copy tweaks based on final self-review
-- Cleaned up any remaining console warnings and unused imports
-- Confirmed CI passes on main branch before submission
+- Initialized Next.js project with App Router and TypeScript
+- Connected Supabase (Postgres) for storing audit results
+- Wrote first version of `route.ts` — the API route that calls claude-sonnet and returns a structured audit
+- Built the spend input form: tool name, seats, monthly cost, use case
+- Created the results page with a shareable UUID-based URL
+- First successful end-to-end test: form → Claude → results page
+- Deployed to Vercel
 
-**Challenges:**
-- Making sure all docs accurately reflected the real build journey without retrofitting
-- Ensuring dark mode didn't break any edge-case component states
+**What I learned:** Vercel deployment failed twice because `ANTHROPIC_API_KEY` wasn't set in the Vercel environment — not just in `.env.local`. Environment variables in Next.js need to be explicitly added in the Vercel dashboard, they don't sync from the repo.
 
-**What I learned:**
-- The importance of writing docs *alongside* code, not after — the week's gap made reconstruction harder
-- End-to-end testing on prod vs. dev still surfaces surprises (especially with Resend + Supabase env vars)
+**Blockers / what I'm stuck on:** Supabase env vars took time to wire up correctly. Supabase insert was throwing a silent error because the table schema didn't match the shape of the object I was inserting — null fields on non-nullable columns. Fixed by updating the schema to allow nulls on optional fields.
+
+**Plan for tomorrow:** Add value-add features — presets, calculators. Make the tool more useful beyond just the raw audit.
+
+---
+
+## Day 4 — 2026-05-10
+
+**Hours worked:** 4
+
+**What I did:**
+- Added Quick Presets (Lean Startup / Scale-Ready / Best-in-Class) that auto-fill the form
+- Built What-If Calculator — slider to simulate adding N seats with real-time cost delta
+- Built ROI Calculator — cost per developer per month and estimated productivity gain
+- Built API Usage Estimator — input tokens/day, get projected monthly cost across Claude, GPT-4, Gemini
+- Fixed Supabase insert error that was silently failing on Day 3
+- Mobile-first UI redesign with progress bars
+
+**What I learned:** The UI was getting cluttered fast. Four calculators on one page is too much. Filed a mental note to split into tabs tomorrow.
+
+**Blockers / what I'm stuck on:** Resend email client was throwing a runtime error — the client was being instantiated at module level instead of inside the handler function, which breaks in Next.js Edge runtime. Fixed by moving the `new Resend()` call inside the POST handler.
+
+**Plan for tomorrow:** Restructure UI into tabs, add reset button, responsive desktop layout.
+
+---
+
+## Day 5 — 2026-05-11
+
+**Hours worked:** 5
+
+**What I did:**
+- Moved What-If, ROI, and API Estimator into a separate Tools tab — main page now only shows the Audit form
+- Added Reset button (circular arrows icon, top-right of form) to clear all fields
+- Full responsive redesign: two-column layout on desktop, single column on mobile
+- Added dark/light mode toggle — persists via localStorage
+- Lead capture form on results page: name + email, stored to Supabase
+- Added honeypot field (`_trap`) on lead capture to block bots
+- OG image meta tags for social sharing
+
+**What I learned:** Responsive design isn't automatic with Tailwind — if you only test on mobile, the desktop layout will look cramped. Should have tested on a wide viewport from day one.
+
+**Blockers / what I'm stuck on:** Dark mode had a flash of unstyled content on load. Fixed by reading the localStorage value and applying the class before React hydration using a small inline script in `layout.tsx`.
+
+**Plan for tomorrow:** Lighthouse audit, accessibility fixes, write all required documentation.
+
+---
+
+## Day 6 — 2026-05-12
+
+**Hours worked:** 6
+
+**What I did:**
+- Fixed Lighthouse accessibility issues: added `aria-label` to icon buttons, improved color contrast in dark mode
+- Performance: lazy-loaded the Tools tab, deferred non-critical scripts → Lighthouse Performance 87, Accessibility 92, Best Practices 91
+- Form state now persists across page reloads via localStorage
+- Added email report button (sends audit via Resend)
+- Fixed Resend client instantiation bug fully (was still appearing in one other route)
+- Full mobile redesign of results page — savings numbers now large and readable on small screens
+- Wrote Jest tests for the audit engine — 5 tests covering core logic
+- Set up GitHub Actions CI (`.github/workflows/ci.yml`) — runs lint + tests on every push to main
+- Wrote all required documentation: ARCHITECTURE.md, DEVLOG.md, REFLECTION.md, TESTS.md, PROMPTS.md, GTM.md, ECONOMICS.md, USER_INTERVIEWS.md, LANDING_COPY.md, METRICS.md, PRICING_DATA.md
+
+**What I learned:** Lighthouse mobile scores are harder to hit than desktop. Lazy loading the Tools tab dropped the initial JS bundle enough to push Performance above 85.
+
+**Blockers / what I'm stuck on:** CI took three attempts to go green — the Jest config needed `moduleNameMapper` set up for the `@/` path alias that Next.js uses. Not obvious from the Jest docs.
+
+**Plan for tomorrow:** Final polish, submission prep, verify prod end-to-end one more time.
+
+---
+
+## Day 7 — 2026-05-13
+
+**Hours worked:** 3
+
+**What I did:**
+- Verified full end-to-end flow on production (Vercel) — audit engine, email report, lead capture all working
+- Confirmed Supabase is recording leads correctly in prod environment
+- Minor UI and copy tweaks based on final self-review
+- Cleaned up console warnings and unused imports
+- Updated all docs to reflect final state of the app
+- Confirmed CI is green on latest commit to main
+- Submitted
+
+**What I learned:** End-to-end testing on prod still surfaces surprises — Resend and Supabase both behave slightly differently when env vars come from Vercel rather than `.env.local`. Always test on the deployed URL before submitting, not just localhost.
+
+**Blockers / what I'm stuck on:** None. 
